@@ -6,6 +6,8 @@ struct Input {
   args: Vec<String>
 }
 
+const BUILTINS: &[&str] = &["exit","echo","type","pwd","cd"];
+
 fn main() {
     // Uncomment this block to pass the first stage
     loop {
@@ -26,6 +28,15 @@ fn main() {
             println!("{}: command not found",formatted_input.command);
           } else {
             println!("{}", formatted_input.args.join(" "));
+          }
+        }
+        "type" => {
+          if let Some(arg) = formatted_input.args.get(0){
+            if BUILTINS.contains(&arg.as_str()){
+              println!("{} is a shell builtin",arg);
+            } else {
+              println!("{}: not found",arg);
+            }
           }
         }
         _ => {
