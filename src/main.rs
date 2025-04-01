@@ -1,5 +1,6 @@
 #[allow(unused_imports)]
 use std::io::{self, Write};
+use std::{env::var, path::{Path, PathBuf}};
 
 struct Input {
   command: String,
@@ -35,7 +36,12 @@ fn main() {
             if BUILTINS.contains(&arg.as_str()){
               println!("{} is a shell builtin",arg);
             } else {
-              println!("{}: not found",arg);
+              let result_path: Option<PathBuf> = path_finder(arg);
+              if let Some(path) = result_path {
+                println!("{} is {}",arg, path.display())
+              } else {
+                println!("{}: not found",arg);
+              }
             }
           }
         }
@@ -44,6 +50,20 @@ fn main() {
         }
       }
     }
+}
+
+fn path_finder(query: &String) -> Option<PathBuf>{
+  let path: String = var("PATH").unwrap_or("".to_string());
+  let dirs: Vec<&str> = path.split(":").collect();
+  let mut found_path = None;
+  for dir in &dirs{
+    let new_path = Path::new(dir).join(query);
+    if new_path.exists() {
+      found_path = Some(new_path);
+      break;
+    }
+  }
+  found_path
 }
 
 fn parse_input(input: String) -> Input {
