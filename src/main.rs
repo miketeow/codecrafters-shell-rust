@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 use std::io::{self, Write};
-use std::{env::var, path::{Path, PathBuf}};
+use std::{env::var, path::{Path, PathBuf}, process::Command};
 
 struct Input {
   command: String,
@@ -46,7 +46,16 @@ fn main() {
           }
         }
         _ => {
-          println!("{}: command not found",formatted_input.command);
+          let result_path: Option<PathBuf> = path_finder(&formatted_input.command);
+          #[allow(unused_variables)]
+          if let Some(valid_path) = result_path{
+            let mut cmd = Command::new(&formatted_input.command);
+            cmd.args(&formatted_input.args);
+            let output = cmd.output().unwrap();
+            print!("{}",String::from_utf8_lossy(&output.stdout));
+          } else {
+            println!("{}: command not found",formatted_input.command);
+          }
         }
       }
     }
